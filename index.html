@@ -1191,8 +1191,31 @@
         };
 
         const PROJECTS = [
-            { title: "Portfolio Site", lang: "HTML/CSS/JS", desc: "This interactive site. Built completely from scratch without external frameworks or bulky dependencies. Pure HTML, CSS, and vanilla JS.", status: "complete", github: "https://github.com/ThejasRajamoney/ThejasRajamoney.github.io", demo: "https://thejasrajamoney.github.io" },
-            { title: "Secure Auth System", lang: "Node.js", desc: "JWT-based authentication system with refresh tokens, token blacklisting, and bcrypt password hashing. Built on top of FlashDB.", status: "complete", github: "https://github.com/ThejasRajamoney/auth-system", demo: null }
+            {
+                title: "Portfolio Site",
+                lang: "HTML/CSS/JS",
+                desc: "This interactive site. Built completely from scratch without external frameworks or bulky dependencies. Pure HTML, CSS, and vanilla JS.",
+                status: "complete",
+                github: "https://github.com/ThejasRajamoney/ThejasRajamoney.github.io",
+                demo: "https://thejasrajamoney.github.io"
+            },
+            {
+                title: "Secure Auth System",
+                lang: "Node.js",
+                desc: "JWT-based authentication system with refresh tokens, token blacklisting, and bcrypt password hashing. Built on top of FlashDB.",
+                status: "complete",
+                github: "https://github.com/ThejasRajamoney/auth-system",
+                demo: null
+            },
+            {
+                title: "Log Analyzer",
+                lang: "Python",
+                desc: "Cybersecurity tool that parses SSH/auth, Apache/Nginx, and Windows event logs to detect brute force attempts, SQL injection, XSS, directory traversal, port scans, and privilege escalation. Outputs colored terminal reports and JSON findings with severity levels (CRITICAL → INFO).",
+                status: "complete",
+                github: "https://github.com/ThejasRajamoney/log-analyzer",
+                demo: null,
+                tags: ["cybersecurity", "cli", "threat-detection"]
+            }
         ];
 
         const SKILLS = [
@@ -1401,10 +1424,16 @@
         function openModal(project, color, statusClass) {
             const modal = document.getElementById('project-modal');
             const body = document.getElementById('modal-body');
+
+            const tagsHtml = project.tags
+                ? `<div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:2rem;">${project.tags.map(t => `<span style="padding:0.2rem 0.8rem;border:1px solid rgba(var(--text-rgb),0.2);border-radius:20px;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;">${t}</span>`).join('')}</div>`
+                : '';
+
             body.innerHTML = `
                 <span class="lang-tag" style="color: ${color}">${project.lang}</span>
                 <h2 class="project-title" style="font-size: clamp(2.5rem, 6vw, 4rem); line-height: 0.9;">${project.title}</h2>
-                <div style="margin-bottom: 2rem;"><span class="status-badge ${statusClass}">${project.status}</span></div>
+                <div style="margin-bottom: 1.5rem;"><span class="status-badge ${statusClass}">${project.status}</span></div>
+                ${tagsHtml}
                 <p class="project-desc" style="font-size: 1.15rem; line-height: 1.8; color: var(--text);">${project.desc}</p>
                 <div style="margin-top: 3rem; display: flex; gap: 1rem; flex-wrap: wrap;">
                     ${project.github ? `<a href="${project.github}" target="_blank" class="btn btn-primary hover-target">View Code</a>` : ''}
