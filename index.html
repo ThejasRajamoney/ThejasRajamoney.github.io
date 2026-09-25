@@ -215,6 +215,18 @@
             background: var(--bg-card-hover); border-color: var(--text-quaternary);
             transform: translateY(-3px); box-shadow: var(--shadow-md);
         }
+        .project-card.featured {
+            grid-column: 1 / -1; padding: 30px;
+            background: linear-gradient(135deg, var(--accent-light), var(--bg-card) 55%);
+            border-color: color-mix(in srgb, var(--accent) 38%, var(--border));
+        }
+        .project-card.featured .project-title { font-size: 2.15rem; }
+        .featured-label {
+            font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--accent); margin-bottom: 10px;
+        }
+        .project-facts { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0 0 22px; }
+        .project-fact { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
         .lang-tag {
             font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase;
             letter-spacing: 0.06em; color: var(--accent); margin-bottom: 12px; display: block;
@@ -251,6 +263,12 @@
         }
         .close-modal:hover { color: var(--accent); }
         .modal-tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 18px 0 20px; }
+        .modal-section { margin-top: 24px; }
+        .modal-section h3 {
+            font-family: var(--font-mono); font-size: 11px; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--accent); margin-bottom: 8px;
+        }
+        .modal-section p { font-size: 14px; line-height: 1.8; color: var(--text-secondary); }
         .modal-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px; }
         /* ── skills ── */
         .skills-list { display: flex; flex-direction: column; gap: 0; border-top: 1px solid var(--border); }
@@ -532,6 +550,25 @@
             goal: 50
         };
         const PROJECTS = [
+            {
+                title: "Artifacta",
+                lang: "Rust / Tauri",
+                desc: "A local-first static investigation workbench for suspicious Windows files. Artifacta turns executables, archives, event logs, packet captures, and structured logs into evidence-backed cases without uploading or executing the evidence.",
+                status: "release candidate",
+                featured: true,
+                github: "https://github.com/ThejasRajamoney/Artifacta",
+                demo: "https://thejasrajamoney.github.io/Artifacta/",
+                demoLabel: "Project site →",
+                tags: ["rust", "tauri", "react", "dfir", "static-analysis", "yara-x", "windows-security"],
+                facts: ["18 core Rust crates", "137 Rust tests", "Zero uploads or execution"],
+                sections: [
+                    { title: "The problem", body: "Investigating a suspicious file often means sending sensitive evidence to a third party or accepting a black-box verdict. Artifacta keeps the entire workflow local and shows the analyst exactly why each finding exists, including the bytes, headers, imports, strings, signatures, packets, and provenance that support it." },
+                    { title: "Analysis and investigation", body: "The workbench handles PE32/PE32+, .NET metadata, ZIP archives with child extraction, EVTX logs, PCAP/PCAPNG captures, JSONL, CSV, syslog, and generic hashed artifacts. It combines PE structure, imports and exports, resources, overlay data, Authenticode inspection, indicators, entropy, and YARA-X matches with cases, notes, bookmarks, graph and chronology views, indexed search, comparison, and cross-source correlation." },
+                    { title: "Security model", body: "Potentially hostile PE and YARA workloads run in disposable zero-capability Windows AppContainers constrained by Job Objects, bounded IPC, deadlines, memory limits, staged read-only inputs, and hardened DLL search behavior. Production paths contain no network client, the renderer has no HTTP or shell capability, and there is no cloud account, upload service, or telemetry pipeline." },
+                    { title: "Architecture and reporting", body: "Artifacta combines 18 focused Rust core crates with a Tauri 2 desktop shell, React and TypeScript interface, local SQLite-backed case data, and a headless CLI. Its evidence-first model flows from artifact to provenance to evidence to finding to explanation. Exports include deterministic JSON, self-contained HTML, locally rendered PDF, CSV, STIX 2.1, integrity manifests, and portable case bundles." },
+                    { title: "Engineering evidence", body: "The release-candidate qualification records 137 passing Rust tests, a 68-fixture adversarial parser corpus with 60 complete analyses and eight expected safe failures, 35 frontend and accessibility checks, and 6/6 real WebView2 end-to-end workflows. The current build is deliberately labeled an unsigned evaluation release candidate because isolated Windows install, upgrade, and uninstall qualification remains pending." }
+                ]
+            },
             { title: "Portfolio Site", lang: "HTML/CSS/JS", desc: "This interactive site. Built completely from scratch without external frameworks or bulky dependencies. Pure HTML, CSS, and vanilla JS.", status: "complete", github: "https://github.com/ThejasRajamoney/ThejasRajamoney.github.io", demo: "https://thejasrajamoney.github.io" },
             { title: "Chicken Dogfight", lang: "Godot/GDScript", desc: "A physics-based 2D aerial combat game where firing eggs also creates movement recoil. Features an AI bot, local 2-player battles, procedural audio, and first-to-5 matches.", status: "complete", github: "https://github.com/ThejasRajamoney/chicken-dogfight", demo: "https://thejasrajamoney.github.io/games/chicken-dogfight/", tags: ["godot", "gdscript", "physics", "ai", "local-multiplayer"] },
             { title: "ReconAI", lang: "Python", desc: "Full-stack AI-powered recon and attack surface mapping tool built with FastAPI, React, Vite, and Tailwind. Runs passive recon, enriches results with GPT-4o, and generates structured threat intelligence reports.", status: "complete", github: "https://github.com/ThejasRajamoney/reconai", demo: "https://reconaiii.vercel.app", tags: ["fastapi", "react", "vite", "tailwind", "openai", "osint"] },
@@ -591,15 +628,20 @@
             const filtered = filter === 'all' ? PROJECTS : PROJECTS.filter(p => p.lang === filter);
             filtered.forEach(p => {
                 const card = document.createElement('div');
-                card.className = 'project-card';
+                card.className = `project-card${p.featured ? ' featured' : ''}`;
                 let statusClass = "status-planned";
                 const s = p.status.toLowerCase();
                 if (s.includes("complete")) statusClass = "status-complete";
-                else if (s.includes("progress")) statusClass = "status-progress";
+                else if (s.includes("progress") || s.includes("release")) statusClass = "status-progress";
+                const factsHtml = p.facts
+                    ? `<div class="project-facts">${p.facts.map(f => `<span class="project-fact">${f}</span>`).join('')}</div>`
+                    : '';
                 card.innerHTML = `
+                    ${p.featured ? '<span class="featured-label">Flagship project</span>' : ''}
                     <span class="lang-tag">${p.lang}</span>
                     <h3 class="project-title">${p.title}</h3>
                     <p class="project-desc">${p.desc}</p>
+                    ${factsHtml}
                     <div class="project-footer">
                         <span class="status-badge ${statusClass}">${p.status}</span>
                         <span class="card-arrow">Details →</span>
@@ -632,15 +674,20 @@
             const tagsHtml = project.tags
                 ? `<div class="modal-tags">${project.tags.map(t => `<span class="pill">${t}</span>`).join('')}</div>`
                 : '';
+            const sectionsHtml = project.sections
+                ? project.sections.map(section => `<section class="modal-section"><h3>${section.title}</h3><p>${section.body}</p></section>`).join('')
+                : '';
             body.innerHTML = `
+                ${project.featured ? '<span class="featured-label">Flagship project</span>' : ''}
                 <span class="lang-tag">${project.lang}</span>
                 <h2 class="project-title" style="font-size: 2.4rem;">${project.title}</h2>
                 <div style="margin: 12px 0;"><span class="status-badge ${statusClass}">${project.status}</span></div>
                 ${tagsHtml}
                 <p style="font-size: 15px; line-height: 1.8; color: var(--text-secondary);">${project.desc}</p>
+                ${sectionsHtml}
                 <div class="modal-actions">
                     ${project.github ? `<a href="${project.github}" target="_blank" class="btn btn-primary">View code →</a>` : ''}
-                    ${project.demo ? `<a href="${project.demo}" target="_blank" class="btn">Live demo →</a>` : ''}
+                    ${project.demo ? `<a href="${project.demo}" target="_blank" class="btn">${project.demoLabel || 'Live demo →'}</a>` : ''}
                 </div>
             `;
             modal.classList.add('active');
